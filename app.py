@@ -3,9 +3,50 @@ import requests
 import json
 import os
 
+
+
+# 사용자 검색 기록 및 날씨 히스토리 기능 추가
+import json
+
+HISTORY_FILE = 'history.json'
+WEATHER_HISTORY_FILE = 'weather_history.json'
+
+def save_search_history(city):
+    try:
+        with open(HISTORY_FILE, 'r') as f:
+            history = json.load(f)
+    except:
+        history = []
+    history_entry = {"city": city}
+    history.append(history_entry)
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(history, f, indent=4)
+
+def save_weather_history(city, weather):
+    try:
+        with open(WEATHER_HISTORY_FILE, 'r') as f:
+            all_history = json.load(f)
+    except:
+        all_history = {}
+    city_history = all_history.get(city, [])
+    city_history.append({"weather": weather})
+    city_history = city_history[-3:]
+    all_history[city] = city_history
+    with open(WEATHER_HISTORY_FILE, 'w') as f:
+        json.dump(all_history, f, indent=4)
+
+@app.route('/history')
+def view_history():
+    try:
+        with open(HISTORY_FILE, 'r') as f:
+            history = json.load(f)
+    except:
+        history = []
+    return render_template('history.html', history=history)
+
 app = Flask(__name__)
 API_KEY = '9777155c8a3cc183254aee7ad5ebbafe'
-NEWS_API_KEY = '3c464a1ca21944c58aaf5c93c71f19e5'
+NEWS_API_KEY = 'a726dddf2e3bff7b3b0aaa2067c63c13'
 
 city_map = {
     '서울': 'Seoul', '부산': 'Busan', '대구': 'Daegu', '인천': 'Incheon', '광주': 'Gwangju', '대전': 'Daejeon',
@@ -50,8 +91,7 @@ def home():
     news_error = None
     if request.method == 'POST':
         query = request.form.get('query')
-        news_url = f'https://newsapi.org/v2/everything?q={query}&apiKey={NEWS_API_KEY}&language=ko&pageSize=5'
-        response = requests.get(news_url)
+        news_url = f'https://gnews.io/api/v4/search?q={query}&token={NEWS_API_KEY}&lang=ko&max=5'
         if response.status_code == 200:
             news_articles = response.json().get('articles', [])
             if not news_articles:
@@ -144,5 +184,4 @@ def get_weather(city):
         }
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
+    app.run()
