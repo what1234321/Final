@@ -35,6 +35,8 @@ def save_weather_history(city, weather):
     with open(WEATHER_HISTORY_FILE, 'w') as f:
         json.dump(all_history, f, indent=4)
 
+app = Flask(__name__)
+
 @app.route('/history')
 def view_history():
     try:
@@ -44,7 +46,6 @@ def view_history():
         history = []
     return render_template('history.html', history=history)
 
-app = Flask(__name__)
 API_KEY = '9777155c8a3cc183254aee7ad5ebbafe'
 NEWS_API_KEY = 'a726dddf2e3bff7b3b0aaa2067c63c13'
 
