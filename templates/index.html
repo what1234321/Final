@@ -102,6 +102,29 @@
     </ul>
   {% endif %}
 
+ <hr>
+
+    <!-- 뉴스 검색 -->
+    <h2>뉴스 검색</h2>
+    <form method="post" action="/">
+        <input type="text" name="query" placeholder="뉴스 키워드 입력" required>
+        <button type="submit">뉴스 검색</button>
+    </form>
+
+    {% if news_error %}
+        <p style="color:red;">{{ news_error }}</p>
+    {% endif %}
+
+    {% if news_articles %}
+        <ul>
+        {% for article in news_articles %}
+            <li><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+
+
   <h2>📋 저장된 즐겨찾기</h2>
   <div id="favorites-list"></div>
   <div id="group-weather-result"></div>
@@ -270,3 +293,4 @@
   </script>
 </body>
 </html>
+

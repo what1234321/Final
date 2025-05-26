@@ -5,6 +5,7 @@ import os
 
 app = Flask(__name__)
 API_KEY = '9777155c8a3cc183254aee7ad5ebbafe'
+NEWS_API_KEY = '3c464a1ca21944c58aaf5c93c71f19e5'
 
 city_map = {
     '서울': 'Seoul', '부산': 'Busan', '대구': 'Daegu', '인천': 'Incheon', '광주': 'Gwangju', '대전': 'Daejeon',
@@ -30,12 +31,41 @@ def save_groups(groups):
     with open(FAV_FILE, 'w', encoding='utf-8') as f:
         json.dump(groups, f, ensure_ascii=False, indent=2)
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
+    # 기본값 설정
     city_input = request.args.get('city', default='Seoul')
-    city = city_map.get(city_input, city_input)
+
+    # 도시명 변환
+    if city_input in city_map:
+        city = city_map[city_input]
+    else:
+        city = city_input
+
+    # 날씨 정보 가져오기
     weather = get_weather(city)
-    return render_template('index.html', weather=weather)
+
+    # 뉴스 관련 처리
+    news_articles = []
+    news_error = None
+    if request.method == 'POST':
+        query = request.form.get('query')
+        news_url = f'https://newsapi.org/v2/everything?q={query}&apiKey={NEWS_API_KEY}&language=ko&pageSize=5'
+        response = requests.get(news_url)
+        if response.status_code == 200:
+            news_articles = response.json().get('articles', [])
+            if not news_articles:
+                news_error = "검색 결과가 없습니다."
+        else:
+            news_error = "뉴스 정보를 가져오는데 실패했습니다."
+
+    return render_template(
+        'index.html',
+        weather=weather,
+        news_articles=news_articles,
+        news_error=news_error
+    )
+
 
 @app.route('/autocomplete')
 def autocomplete():
