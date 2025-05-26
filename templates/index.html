@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>{{ weather.city }} 날씨</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Noto Sans KR', sans-serif;
@@ -81,33 +82,21 @@
   </style>
 </head>
 <body>
-<!-- 사용자 그래프 시각화 삽입 시작 -->
-<div class="user-chart-section">
-<canvas id="weatherChart" width="400" height="200"></canvas>
 
-    <form method="get" action="/">
-        <input type="text" name="city" placeholder="도시 입력" required>
-        <button type="submit">날씨 조회</button>
-    </form>
-    <a href="/history">검색 기록 보기</a>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</div>
-<!-- 사용자 그래프 시각화 삽입 끝 -->
-
-  <h1>{{ weather.city }}의 현재 날씨</h1>
-
-  <form method="GET" action="/">
+  <form method="get" action="/">
     <input type="text" name="city" id="city-input" placeholder="도시 이름 입력" autocomplete="off" required />
     <button type="submit">날씨 조회</button>
     <div id="suggestions"></div>
   </form>
+
+  <a href="/history">검색 기록 보기</a>
 
   <p class="note">도시명이 인식되지 않으면 <strong>영문으로, 첫 글자를 대문자로</strong> 입력해주세요. (예: Busan)</p>
 
   {% if weather.error %}
     <p class="error">{{ weather.error }}</p>
   {% else %}
+    <canvas id="weatherChart" width="400" height="200"></canvas>
     <ul>
       <li><strong>기온:</strong> <span id="temp">{{ weather.temperature }}</span>°C</li>
       <li><strong>강수량(1시간):</strong> <span id="rain">{{ weather.rain }}</span> mm</li>
@@ -116,28 +105,24 @@
     </ul>
   {% endif %}
 
- <hr>
+  <hr>
 
-    <!-- 뉴스 검색 -->
-    <h2>뉴스 검색</h2>
-    <form method="post" action="/">
-        <input type="text" name="query" placeholder="뉴스 키워드 입력" required>
-        <button type="submit">뉴스 검색</button>
-    </form>
+  <h2>뉴스 검색</h2>
+  <form method="post" action="/">
+    <input type="text" name="query" placeholder="뉴스 키워드 입력" required />
+    <button type="submit">뉴스 검색</button>
+  </form>
 
-    {% if news_error %}
-        <p style="color:red;">{{ news_error }}</p>
-    {% endif %}
-
-    {% if news_articles %}
-        <ul>
-        {% for article in news_articles %}
-            <li><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-
-
+  {% if news_error %}
+    <p class="error">{{ news_error }}</p>
+  {% endif %}
+  {% if news_articles %}
+    <ul>
+      {% for article in news_articles %}
+        <li><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
   <h2>📋 저장된 즐겨찾기</h2>
   <div id="favorites-list"></div>
@@ -159,27 +144,27 @@
       weekdays.forEach(day => {
         const div = document.createElement('div');
         div.classList.add('row');
-        div.innerHTML = `
+        div.innerHTML = 
           <label><input type="checkbox" class="day-check" data-day="${day}"> <strong>${day}</strong></label><br>
           도시: <input type="text" class="city" data-day="${day}" disabled><br>
           시간: 
           <select class="hour" data-day="${day}" disabled>
-            ${[...Array(24).keys()].map(h => `<option value="${h.toString().padStart(2, '0')}">${h}</option>`).join('')}
+            ${[...Array(24).keys()].map(h => <option value="${h.toString().padStart(2,'0')}">${h}</option>).join('')}
           </select>시
           <select class="minute" data-day="${day}" disabled>
-            ${['00','10','20','30','40','50'].map(m => `<option value="${m}">${m}</option>`).join('')}
+            ${['00','10','20','30','40','50'].map(m => <option value="${m}">${m}</option>).join('')}
           </select>분
           <br><br>
-        `;
+        ;
         container.appendChild(div);
       });
 
       document.querySelectorAll('.day-check').forEach(chk => {
         chk.addEventListener('change', () => {
           const day = chk.dataset.day;
-          document.querySelector(`.city[data-day="${day}"]`).disabled = !chk.checked;
-          document.querySelector(`.hour[data-day="${day}"]`).disabled = !chk.checked;
-          document.querySelector(`.minute[data-day="${day}"]`).disabled = !chk.checked;
+          document.querySelector(.city[data-day="${day}"]).disabled = !chk.checked;
+          document.querySelector(.hour[data-day="${day}"]).disabled = !chk.checked;
+          document.querySelector(.minute[data-day="${day}"]).disabled = !chk.checked;
         });
       });
     }
@@ -191,12 +176,12 @@
       const name = document.getElementById('group-name').value;
       const entries = [];
       weekdays.forEach(day => {
-        const check = document.querySelector(`.day-check[data-day="${day}"]`).checked;
+        const check = document.querySelector(.day-check[data-day="${day}"]).checked;
         if (check) {
-          const city = document.querySelector(`.city[data-day="${day}"]`).value;
-          const hour = document.querySelector(`.hour[data-day="${day}"]`).value;
-          const minute = document.querySelector(`.minute[data-day="${day}"]`).value;
-          entries.push({ weekday: day, city, time: `${hour}:${minute}` });
+          const city = document.querySelector(.city[data-day="${day}"]).value;
+          const hour = document.querySelector(.hour[data-day="${day}"]).value;
+          const minute = document.querySelector(.minute[data-day="${day}"]).value;
+          entries.push({ weekday: day, city, time: ${hour}:${minute} });
         }
       });
       const response = await fetch('/add-group', {
@@ -214,18 +199,18 @@
       groups.forEach(group => {
         const div = document.createElement('div');
         div.className = 'group';
-        div.innerHTML = `
+        div.innerHTML = 
           <strong>${group.group_name}</strong><br>
-          ${group.entries.map(t => `${t.weekday} (${t.city} ${t.time})`).join('<br>')}<br>
+          ${group.entries.map(t => ${t.weekday} (${t.city} ${t.time})).join('<br>')}<br>
           <button onclick="fetchGroupWeather('${group.group_name}')">조회</button>
           <button onclick="deleteGroup('${group.group_name}')">삭제</button>
-        `;
+        ;
         list.appendChild(div);
       });
     }
 
     async function fetchGroupWeather(groupName) {
-      const res = await fetch(`/get-group-weather?group=${encodeURIComponent(groupName)}`);
+      const res = await fetch(/get-group-weather?group=${encodeURIComponent(groupName)});
       const data = await res.json();
       const result = document.getElementById('group-weather-result');
       result.innerHTML = '';
@@ -234,20 +219,20 @@
         data.results.forEach(d => {
           const div = document.createElement('div');
           div.className = 'result';
-          div.innerHTML = `
+          div.innerHTML = 
             <strong>${d.weekday} ${d.time} - ${d.city}</strong><br>
             기온: ${d.temperature}°C<br>
             강수량(1시간): ${d.rain ?? 0} mm<br>
             습도: ${d.humidity}%<br>
             설명: ${d.description}<br>
-          `;
+          ;
           result.appendChild(div);
         });
       }
     }
 
     async function deleteGroup(groupName) {
-      await fetch(`/delete-group`, {
+      await fetch(/delete-group, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: groupName })
@@ -266,7 +251,7 @@
     function fetchWeather() {
       const params = new URLSearchParams(window.location.search);
       const city = params.get('city') || 'Seoul';
-      fetch(`/weather-data?city=${city}`)
+      fetch(/weather-data?city=${city})
         .then(res => res.json())
         .then(data => {
           if (!data.error) {
@@ -277,6 +262,7 @@
           }
         });
     }
+
     fetchWeather();
     setInterval(fetchWeather, 60000);
 
@@ -288,7 +274,7 @@
         suggestions.innerHTML = '';
         return;
       }
-      fetch(`/autocomplete?q=${query}`)
+      fetch(/autocomplete?q=${query})
         .then(res => res.json())
         .then(data => {
           suggestions.innerHTML = '';
@@ -307,4 +293,3 @@
   </script>
 </body>
 </html>
-
